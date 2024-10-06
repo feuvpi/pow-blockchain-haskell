@@ -37,3 +37,21 @@ genesisBlock = do
         previousHash = "0",
         nonce = 0
     }
+
+-- | Check if the block's hash is valid (Proof of Work)
+isValidHash :: Block -> Int -> Bool
+isValidHash block difficulty =
+    let target = replicate difficulty '0' -- Difficulty is the number of leading zeros required in the hash
+        blockHash = calculateHash block
+    in take difficulty blockHash == target
+
+
+-- | Mine a block by finding a valid nonce
+mineBlock :: Block -> Int -> Block
+mineBlock block difficulty =
+    let tryNonce blk nonce =
+            let newBlock = blk { nonce = nonce }
+            in if isValidHash newBlock difficulty
+               then newBlock
+               else tryNonce blk (nonce + 1)
+    in tryNonce block (nonce block)
